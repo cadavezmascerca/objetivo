@@ -17,20 +17,68 @@
       overflow:hidden;
     }
 
-    /* Fondo con líneas diagonales pequeñas y difuminadas */
+    /* FONDO COMPLETO: azul oscuro + líneas diagonales rojas + niebla energética */
     body{
-      background:
-        repeating-linear-gradient(
-          135deg,
-          rgba(60,0,20,0.25) 0px,
-          rgba(60,0,20,0.25) 15px,
-          rgba(160,0,40,0.18) 15px,
-          rgba(160,0,40,0.18) 30px
-        );
-      filter:blur(0.4px);
+      height:100%;
+      margin:0;
       display:flex;
       justify-content:center;
       align-items:center;
+      overflow:hidden;
+      background:#000814;
+      position:relative;
+    }
+
+    /* Líneas diagonales rojas difuminadas */
+    body::before{
+      content:"";
+      position:absolute;
+      top:0;
+      left:0;
+      width:200%;
+      height:200%;
+      background:
+        linear-gradient(180deg, #000814 0%, #00172e 100%),
+        repeating-linear-gradient(
+          135deg,
+          rgba(255,0,0,0.12) 0px,
+          rgba(255,0,0,0.12) 12px,
+          rgba(150,0,0,0.14) 12px,
+          rgba(150,0,0,0.14) 24px
+        );
+      background-blend-mode:overlay;
+      filter:blur(0.6px);
+      animation:mistMove 45s linear infinite;
+      z-index:-2;
+    }
+
+    /* Niebla energética suave */
+    body::after{
+      content:"";
+      position:absolute;
+      top:-50%;
+      left:-50%;
+      width:200%;
+      height:200%;
+      background:radial-gradient(circle at 30% 30%, rgba(0,120,255,0.10), transparent 60%),
+                 radial-gradient(circle at 70% 70%, rgba(255,0,80,0.10), transparent 60%);
+      filter:blur(90px);
+      animation:energyFlow 60s ease-in-out infinite alternate;
+      z-index:-1;
+    }
+
+    /* Movimiento lento de la niebla */
+    @keyframes mistMove{
+      0% { transform:translate(0,0); }
+      50% { transform:translate(-5%, -5%); }
+      100% { transform:translate(0,0); }
+    }
+
+    /* Movimiento orgánico de energía */
+    @keyframes energyFlow{
+      0% { transform:scale(1) translate(0,0); opacity:0.5; }
+      50% { transform:scale(1.2) translate(4%, -6%); opacity:0.7; }
+      100% { transform:scale(1) translate(0,0); opacity:0.5; }
     }
 
     @keyframes pulseGlow {
@@ -47,6 +95,7 @@
       animation:pulseGlow 2.8s infinite ease-in-out;
       backdrop-filter:blur(6px);
       text-align:center;
+      z-index:10;
     }
 
     h1{
@@ -107,7 +156,6 @@
       min-height:40px;
     }
 
-    /* Mensaje error azul brillante */
     .errorMsg{
       color:#47c6ff;
       margin-top:15px;
@@ -134,7 +182,6 @@
 
 <body>
 
-  <!-- Música: solo suena cuando das clic -->
   <audio id="bgMusic" src="https://files.catbox.moe/7mggy0.mp3" loop></audio>
 
   <div class="contenedor">
@@ -150,14 +197,12 @@
   </div>
 
   <script>
-    // Música SOLO cuando se pulsa COMPROBAR
     function startMusic(){
       const audio = document.getElementById('bgMusic');
       audio.volume = 0.28;
       audio.play().catch(()=>{});
     }
 
-    // ENTER actúa como comprobar
     document.addEventListener('keydown', function(event){
       if(event.key === "Enter"){
         startMusic();
@@ -167,13 +212,12 @@
 
     function typeWriterEffect(text, element){
       element.innerHTML = "";
-      const container = document.createElement("span");
-      element.appendChild(container);
-
+      const span = document.createElement("span");
+      element.appendChild(span);
       let i = 0;
       function type(){
         if(i < text.length){
-          container.textContent += text[i];
+          span.textContent += text[i];
           i++;
           setTimeout(type, 28);
         }
@@ -206,7 +250,7 @@
 
         if(data.ok){
           pistaDiv.style.display = 'block';
-          typeWriterEffect(data.clue, pistaDiv); 
+          typeWriterEffect(data.clue, pistaDiv);
         }else{
           errorMsg.textContent = "Sigue intentando...";
           errorMsg.style.display = "block";
