@@ -1,0 +1,16 @@
+# No subir dependencias ni entorno
+node_modules/
+.env
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Archivos temporales
+*.tmp
+*.log

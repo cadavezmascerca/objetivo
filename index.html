@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Siempre deberías ser objetivo.</title>
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+
+  <style>
+    html,body{
+      height:100%;
+      margin:0;
+      font-family:'Montserrat',sans-serif;
+      overflow:hidden;
+    }
+
+    /* Fondo con líneas diagonales pequeñas y difuminadas */
+    body{
+      background:
+        repeating-linear-gradient(
+          135deg,
+          rgba(60,0,20,0.25) 0px,
+          rgba(60,0,20,0.25) 15px,
+          rgba(160,0,40,0.18) 15px,
+          rgba(160,0,40,0.18) 30px
+        );
+      filter:blur(0.4px);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow:0 0 12px rgba(255,0,0,0.5); }
+      50% { box-shadow:0 0 25px rgba(255,0,0,0.9); }
+      100% { box-shadow:0 0 12px rgba(255,0,0,0.5); }
+    }
+
+    .contenedor{
+      width:430px;
+      background:rgba(0,0,0,0.45);
+      padding:40px;
+      border-radius:15px;
+      animation:pulseGlow 2.8s infinite ease-in-out;
+      backdrop-filter:blur(6px);
+      text-align:center;
+    }
+
+    h1{
+      font-family:'Cinzel Decorative',cursive;
+      color:#ff1e1e;
+      font-size:28px;
+      text-shadow:0 0 8px rgba(255,40,40,0.9);
+      margin-bottom:28px;
+    }
+
+    input{
+      width:100%;
+      padding:10px;
+      border:none;
+      outline:none;
+      border-radius:7px;
+      margin-top:5px;
+      font-size:14px;
+      text-align:center;
+      background-color:#ffffffde;
+      font-family:'Playfair Display', serif;
+      letter-spacing:0.5px;
+    }
+
+    button{
+      margin-top:18px;
+      width:100%;
+      padding:13px;
+      background:#ff1e1e;
+      border:none;
+      border-radius:10px;
+      color:white;
+      font-size:18px;
+      cursor:pointer;
+      transition:0.25s;
+      font-family:'Playfair Display', serif;
+      letter-spacing:1px;
+      box-shadow:0 0 10px rgba(255,0,0,0.5);
+    }
+
+    button:hover{
+      background:#cc0000;
+      transform:scale(1.03);
+      box-shadow:0 0 15px rgba(255,0,0,0.8);
+    }
+
+    .pista{
+      display:none;
+      margin-top:25px;
+      padding:15px;
+      color:#00ffea;
+      font-size:15px;
+      background:#022;
+      border-radius:7px;
+      border:1px solid #088;
+      word-wrap:break-word;
+      text-align:left;
+      min-height:40px;
+    }
+
+    /* Mensaje error azul brillante */
+    .errorMsg{
+      color:#47c6ff;
+      margin-top:15px;
+      display:none;
+      font-size:14px;
+      font-family:'Playfair Display', serif;
+      text-shadow:0 0 6px rgba(90,180,255,0.9);
+    }
+
+    .typewriter span {
+      display:inline-block;
+      white-space:pre-wrap;
+      border-right:2px solid #00ffee;
+      animation:cursorBlink 0.7s infinite;
+    }
+
+    @keyframes cursorBlink {
+      0% { border-color:#00ffee; }
+      50% { border-color:transparent; }
+      100% { border-color:#00ffee; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Música: solo suena cuando das clic -->
+  <audio id="bgMusic" src="https://files.catbox.moe/7mggy0.mp3" loop></audio>
+
+  <div class="contenedor">
+    <h1>Siempre deberías ser objetivo.</h1>
+
+    <input type="text" id="password" placeholder="Ingresa la contraseña">
+
+    <button type="button" onclick="startMusic(); checkPassword();">COMPROBAR</button>
+
+    <div id="error" class="errorMsg"></div>
+
+    <div id="pista" class="pista"></div>
+  </div>
+
+  <script>
+    // Música SOLO cuando se pulsa COMPROBAR
+    function startMusic(){
+      const audio = document.getElementById('bgMusic');
+      audio.volume = 0.28;
+      audio.play().catch(()=>{});
+    }
+
+    // ENTER actúa como comprobar
+    document.addEventListener('keydown', function(event){
+      if(event.key === "Enter"){
+        startMusic();
+        checkPassword();
+      }
+    });
+
+    function typeWriterEffect(text, element){
+      element.innerHTML = "";
+      const container = document.createElement("span");
+      element.appendChild(container);
+
+      let i = 0;
+      function type(){
+        if(i < text.length){
+          container.textContent += text[i];
+          i++;
+          setTimeout(type, 28);
+        }
+      }
+      type();
+    }
+
+    async function checkPassword(){
+      const password = document.getElementById('password').value.trim();
+      const pistaDiv = document.getElementById('pista');
+      const errorMsg = document.getElementById('error');
+
+      errorMsg.style.display = "none";
+      pistaDiv.style.display = "none";
+
+      if(password === ""){
+        errorMsg.textContent = "Escribe una contraseña.";
+        errorMsg.style.display = "block";
+        return;
+      }
+
+      try{
+        const response = await fetch('/api/login',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({pass:password})
+        });
+
+        const data = await response.json();
+
+        if(data.ok){
+          pistaDiv.style.display = 'block';
+          typeWriterEffect(data.clue, pistaDiv); 
+        }else{
+          errorMsg.textContent = "Sigue intentando...";
+          errorMsg.style.display = "block";
+        }
+
+      }catch(err){
+        errorMsg.textContent = "Error de conexión.";
+        errorMsg.style.display = "block";
+      }
+    }
+  </script>
+
+</body>
+</html>
